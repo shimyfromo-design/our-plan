@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Our Plan</title>
+<meta name="description" content="A private health plan for two: habits, strength, walking, Shabbat-aware, with one coach who knows you both.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Our Plan">
+<meta name="format-detection" content="telephone=no">
+<!--GUARD--><script>/* Our Plan — the first script on the page (Round 3.2, D2). Inlined into index.html by tools/build.js, before anything else.
+ * - Catches every error from the very start (scripts that fail to load included) and sends it to the Problems tab with
+ *   the app version and the cache state, until the app is running and reports its own errors.
+ * - If the first screen hasn't appeared within 8 seconds, shows a calm "Something went wrong" screen with Reload and
+ *   Something's off. Never a blank page. Reload starts clean: it drops this phone's copies of the app files and of the
+ *   screen data (the back office has everything; changes not yet sent are kept), then opens the app again.
+ * Plain old JavaScript: no modules, nothing it depends on can be missing. */
+(function () {
+  'use strict';
+  var sent = {};
+  function fromUrl(k) { try { return new URLSearchParams(location.search).get(k === 'op_token' ? 'u' : 'a'); } catch (e) { return null; } }
+  function get(k) { var v = null; try { v = localStorage.getItem(k); } catch (e) { v = null; } return v || ((k === 'op_token' || k === 'op_api') ? fromUrl(k) : null); }
+  function api() {
+    var a = get('op_api') || '';
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(a)) return a;
+    return a ? 'https://script.google.com/macros/s/' + a + '/exec' : '';
+  }
+  function post(body) {
+    var u = api(), t = get('op_token');
+    if (!u || !t) return Promise.reject(new Error('no link'));
+    body.t = t;
+    return fetch(u, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, credentials: 'omit' }).then(function (r) { return r.json(); });
+  }
+  function cacheState() {
+    var bits = ['sw=' + (navigator.serviceWorker && navigator.serviceWorker.controller ? 'on' : 'off')];
+    if (!window.caches) return Promise.resolve(bits.join(' '));
+    return caches.keys().then(function (k) { bits.push('caches=' + k.filter(function (n) { return /^ourplan/.test(n); }).join(',')); return bits.join(' '); }, function () { return bits.join(' '); });
+  }
+  function report(message, stack) {
+    if (window.__opAppReady && !window.__opFallback) return; // the running app reports its own errors
+    var key = String(message).slice(0, 120);
+    if (sent[key] || Object.keys(sent).length > 8) return;
+    sent[key] = 1;
+    cacheState().then(function (cs) {
+      post({ action: 'report', message: String(message).slice(0, 300), stack: (String(stack || '') + '\n' + cs + ' route=' + (location.hash || '#')).slice(0, 1500), where: 'startup', version: window.OUR_PLAN_VERSION || '' }).catch(function () {});
+    });
+  }
+  window.__opFail = report;
+  window.addEventListener('error', function (e) {
+    if (e && e.message) { if (!/Script error/.test(e.message)) report(e.message, (e.error && e.error.stack) || (e.filename + ':' + e.lineno)); }
+    else if (e && e.target && (e.target.src || e.target.href)) report('Could not load ' + String(e.target.src || e.target.href).split('/').pop().split('?')[0]);
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) { var r = e && e.reason; report((r && r.message) || String(r), r && r.stack); });
+
+  function reload() {
+    var go = function () { location.reload(); };
+    try { Object.keys(localStorage).forEach(function (k) { if (/^op_state_/.test(k)) localStorage.removeItem(k); }); } catch (e) { /* private mode */ }
+    var jobs = [];
+    if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return /^ourplan-/.test(k); }).map(function (k) { return caches.delete(k); })); }));
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.scope.indexOf('/prev/') < 0 ? r.unregister() : null; })); }));
+    Promise.all(jobs).then(go, go);
+    setTimeout(go, 3000);
+  }
+  function showFallback() {
+    var app = document.getElementById('app');
+    if (!app || window.__opRendered) return;
+    window.__opFallback = true;
+    report('The first screen did not appear within 8 seconds', 'ready=' + !!window.__opAppReady);
+    var tabs = document.getElementById('tabs');
+    if (tabs) tabs.hidden = true;
+    app.innerHTML = '<div class="install" role="alert"><h1 class="title">Something went wrong</h1>' +
+      '<p class="body">Our Plan didn\'t open properly. Your data is safe in your Google Sheet.</p>' +
+      '<button class="btn-primary" type="button" id="op-reload"><span>Reload</span></button>' +
+      '<button class="btn-text block" type="button" id="op-off"><span>Something\'s off</span></button>' +
+      '<div id="op-off-box" hidden><label class="field"><span>What happened?</span><textarea id="op-off-note" rows="3" maxlength="1000"></textarea></label>' +
+      '<button class="btn-primary" type="button" id="op-off-send"><span>Send</span></button><p class="sub" id="op-off-msg" role="status"></p></div></div>';
+    document.getElementById('op-reload').onclick = reload;
+    document.getElementById('op-off').onclick = function () { document.getElementById('op-off-box').hidden = false; document.getElementById('op-off-note').focus(); };
+    document.getElementById('op-off-send').onclick = function () {
+      var note = document.getElementById('op-off-note').value.trim(), msg = document.getElementById('op-off-msg');
+      if (!note) { msg.textContent = 'Write a few words about what happened.'; return; }
+      msg.textContent = 'Sending…';
+      post({ action: 'somethingOff', note: note, route: 'startup', version: window.OUR_PLAN_VERSION || '' })
+        .then(function (j) { msg.textContent = j && j.ok ? 'Sent. Thank you. Now tap Reload.' : 'It didn\'t send. Tap Reload and try from the app.'; },
+          function () { msg.textContent = 'It didn\'t send (no connection?). Tap Reload.'; });
+    };
+  }
+  window.__opShowFallback = showFallback;
+  setTimeout(showFallback, 8000);
+})();
+</script><!--/GUARD-->
+<link rel="manifest" href="manifest.webmanifest?v=f8cdd1a60f">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192-v32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-v32.png">
+<!--SPLASH-->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1320x2868-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1320x2868-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1206x2622-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1206x2622-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1290x2796-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1290x2796-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1179x2556-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1179x2556-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1284x2778-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1284x2778-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1170x2532-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1170x2532-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-828x1792-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-828x1792-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-1125x2436-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-1125x2436-dark-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="icons/splash-750x1334-v32.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="icons/splash-750x1334-dark-v32.png">
+<!--/SPLASH-->
+<link rel="stylesheet" href="css/tokens.css?v=5c1bc892fa">
+<link rel="stylesheet" href="css/app.css?v=91cb19a30f">
+<!--MODULES-->
+<link rel="modulepreload" href="js/api.js?v=d44773a102">
+<link rel="modulepreload" href="js/app.js?v=5a4ab54559">
+<link rel="modulepreload" href="js/core.js?v=c1a0501fca">
+<link rel="modulepreload" href="js/fx.js?v=34cbfc2a31">
+<link rel="modulepreload" href="js/icons.js?v=3ed54b753e">
+<link rel="modulepreload" href="js/mic.js?v=99eadb1765">
+<link rel="modulepreload" href="js/nav.js?v=57c55c9996">
+<link rel="modulepreload" href="js/push.js?v=cfef6cc387">
+<link rel="modulepreload" href="js/store.js?v=5199216217">
+<link rel="modulepreload" href="js/ui.js?v=b5958020ce">
+<link rel="modulepreload" href="js/views/coach.js?v=5f87e5bc8a">
+<link rel="modulepreload" href="js/views/coachpages.js?v=332ed8f726">
+<link rel="modulepreload" href="js/views/groceries.js?v=b08b0b27ca">
+<link rel="modulepreload" href="js/views/install.js?v=d348c3dde6">
+<link rel="modulepreload" href="js/views/labs.js?v=422eee147f">
+<link rel="modulepreload" href="js/views/me.js?v=8edb7eed1e">
+<link rel="modulepreload" href="js/views/plan.js?v=07f795f837">
+<link rel="modulepreload" href="js/views/setup.js?v=2e9cc6c3c9">
+<link rel="modulepreload" href="js/views/sos.js?v=41f1b378d8">
+<link rel="modulepreload" href="js/views/summary.js?v=e8a04af291">
+<link rel="modulepreload" href="js/views/together.js?v=934c68fec2">
+<link rel="modulepreload" href="js/views/workout.js?v=943b0227cc">
+<link rel="modulepreload" href="js/voice.js?v=decfa3dab7">
+<link rel="modulepreload" href="js/wav.js?v=962fbb04c0">
+<!--/MODULES-->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<!--POINTER--><script>/* Our Plan — which app version this household uses (one-tap undo of an update).
+ * The owner flips a shared setting; every phone follows it on its next open. Each publish keeps the
+ * previous version at ./prev/. This file is loaded first by the newest version, and the publish step
+ * adds it to the previous version too (as ../js/pointer.js), so either version can switch back. */
+(function () {
+  'use strict';
+  var KEY = 'op_pointer';
+  function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
+  var inPrev = /\/prev\/(index\.html)?$/.test(location.pathname);
+  function go(which) {
+    var target = which === 'previous' ? (inPrev ? null : 'prev/') : (inPrev ? '../' : null);
+    if (target) location.replace(target + location.search + location.hash);
+  }
+  // 1) instant: follow what this phone last knew (only once the previous version is known to exist)
+  var known = get(KEY) || 'current';
+  if (known === 'previous' && !inPrev && get('op_prev_ok') === '1') { go('previous'); return; }
+  if (known !== 'previous' && inPrev) { go('current'); return; }
+
+  function api() {
+    var a = get('op_api') || '';
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(a)) return a;
+    return a ? 'https://script.google.com/macros/s/' + a + '/exec' : '';
+  }
+  function post(body) {
+    var url = api(), t = get('op_token');
+    if (!url || !t) return Promise.reject(new Error('no link'));
+    body.t = t;
+    return fetch(url, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, credentials: 'omit' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (!j.ok) throw new Error((j.error && j.error.message) || 'error'); return j.data; });
+  }
+  /** Called by the app after each sync, and by the previous version on open. */
+  function follow(pointer) {
+    if (pointer !== 'previous' && pointer !== 'current') return;
+    set(KEY, pointer);
+    if (pointer === 'previous' && !inPrev) {
+      fetch('prev/js/version.js', { cache: 'no-store' }).then(function (r) {
+        if (r.ok) { set('op_prev_ok', '1'); go('previous'); }
+      }).catch(function () { /* offline: try next time */ });
+    } else if (pointer !== 'previous' && inPrev) go('current');
+  }
+  window.OurPlanPointer = { follow: follow, inPrev: inPrev };
+
+  // 2) inside the previous version: check the shared setting, and give the owner a way back
+  if (inPrev) {
+    var check = function () {
+      post({ action: 'pointer' }).then(function (d) {
+        follow(d.pointer);
+        if (d.owner && d.pointer === 'previous') banner();
+      }).catch(function () { /* offline */ });
+    };
+    var banner = function () {
+      if (document.getElementById('op-prev-bar')) return;
+      var b = document.createElement('div');
+      b.id = 'op-prev-bar';
+      b.setAttribute('role', 'status');
+      b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);z-index:70;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:14px;background:#1C1C1E;color:#fff;font:15px -apple-system,system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25)';
+      b.innerHTML = '<span>You\'re on the previous version.</span>';
+      var btn = document.createElement('button');
+      btn.textContent = 'Switch back';
+      btn.style.cssText = 'min-height:44px;padding:8px 14px;border:0;border-radius:10px;background:#fff;color:#000;font:600 15px -apple-system,system-ui,sans-serif';
+      btn.onclick = function () {
+        btn.disabled = true; btn.textContent = 'Switching…';
+        post({ action: 'settings', values: { app_pointer: 'current' } }).then(function () { follow('current'); })
+          .catch(function () { btn.disabled = false; btn.textContent = 'Try again'; });
+      };
+      b.appendChild(btn);
+      (document.body || document.documentElement).appendChild(b);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', check); else check();
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') check(); });
+  }
+})();
+</script><!--/POINTER-->
+<script>
+  // apply the saved theme before first paint (no flash)
+  try { var t = localStorage.getItem('op_theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<main id="app"><div class="skeleton" aria-busy="true" aria-label="Getting your plan"><p class="sk-name">Our Plan</p><div class="sk h"></div><div class="sk line"></div><div class="sk card"></div><div class="sk card short"></div><div class="sk card short"></div></div></main>
+<div class="tabfade" aria-hidden="true"></div>
+<nav id="tabs" aria-label="Main" hidden></nav>
+<div id="sheet-root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px;font:17px system-ui">Our Plan needs JavaScript turned on.</p></noscript>
+<script defer src="js/version.js?v=0b8541c5be"></script>
+<script defer src="js/logic.js?v=3d5c5ae15d"></script>
+<script defer src="js/content.js?v=f636454dd9"></script>
+<script type="module" src="js/app.js?v=5a4ab54559" onerror="window.__opFail&&__opFail('Could not load app.js')"></script>
+</body>
+</html>
