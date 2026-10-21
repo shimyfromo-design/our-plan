@@ -1,0 +1,170 @@
+/* Our Plan — design tokens (Round 3). The ONLY file that defines a color.
+ * Dark is the default when the phone is dark; light when the phone is light. Settings → Look can
+ * force either (data-theme on <html>). Everything else uses var(--…). */
+:root {
+  color-scheme: light;
+  /* surfaces */
+  --page: #F2F2F7;
+  --page-0: rgba(242, 242, 247, 0);
+  --card: #FFFFFF;
+  --inset: #F2F2F7;
+  /* a control that sits straight on the page (light: white, since the inset color is the page color) */
+  --fill: #FFFFFF;
+  --fill-2: #E5E5EA;
+  --sep: #E5E5EA;
+  --sep-inset: #D1D1D6;
+  /* text */
+  --text: #000000;
+  --text2: #6C6C70;
+  --chevron: #A1A1A6;
+  --tab-inactive: #6C6C70;
+  --initial: #D1D1D6;
+  /* actions */
+  --primary: #7CC4AE;
+  --on-primary: #0B2620;
+  --accent: #277A64;
+  --white: #FFFFFF;
+  --on-white: #000000;
+  /* meaning (icons, bars, rings) */
+  --activity: #E07B00;
+  --partner: #F2B55E;
+  --protein: #E0245E;
+  --habits: #EE7896;
+  --sleep: #5856D6;
+  --weight: #9A3FD4;
+  --problem: #D70015;
+  /* meaning as text (4.5:1 on cards and gray insets) */
+  --activity-text: #B85A00;
+  --activity-text-page: #A04E00;
+  --protein-text: #C81E54;
+  --habits-text: #B83D63;
+  --sleep-text: #5856D6;
+  --weight-text: #8A35C2;
+  --problem-text: #D70015;
+  /* controls */
+  --track: #E5E5EA;
+  --seg-track: #E5E5EA;
+  --seg-on: #FFFFFF;
+  --seg-on-text: #000000;
+  --seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04);
+  --grabber: #C7C7CC;
+  --pressed: rgba(0, 0, 0, 0.06);
+  --scrim: rgba(0, 0, 0, 0.32);
+  --spinner-track: rgba(0, 0, 0, 0.12);
+  /* glass: the tab bar and sticky headers only */
+  --tabbar-bg: rgba(255, 255, 255, 0.85);
+  --tabbar-border: rgba(0, 0, 0, 0.06);
+  --tabbar-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  --tab-pill: rgba(124, 196, 174, 0.16);
+  --pick-on: rgba(124, 196, 174, 0.22);
+  --header-glass: rgba(242, 242, 247, 0.82);
+  --header-line: rgba(0, 0, 0, 0.08);
+  --toast-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  /* talk orb rings */
+  --orb-1: rgba(124, 196, 174, 0.14);
+  --orb-2: rgba(124, 196, 174, 0.28);
+  --mic-live: #D70015;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #000000;
+    --page-0: rgba(0, 0, 0, 0);
+    --card: #1C1C1E;
+    --inset: #2C2C2E;
+    --fill: #2C2C2E;
+    --fill-2: #2C2C2E;
+    --pick-on: rgba(124, 196, 174, 0.24);
+    --sep: #38383A;
+    --sep-inset: #3A3A3C;
+    --text: #FFFFFF;
+    --text2: #98989F;
+    --chevron: #6C6C70;
+    --tab-inactive: #AEAEB2;
+    --initial: #3A3A3C;
+    --primary: #7CC4AE;
+    --on-primary: #0B2620;
+    --accent: #7CC4AE;
+    --activity: #FF9F0A;
+    --partner: #FFC56B;
+    --protein: #FF6B8E;
+    --habits: #F5A3B8;
+    --sleep: #8E8CFF;
+    --weight: #C77DFF;
+    --problem: #FF6961;
+    --activity-text: #FF9F0A;
+    --activity-text-page: #FF9F0A;
+    --protein-text: #FF6B8E;
+    --habits-text: #F5A3B8;
+    --sleep-text: #8E8CFF;
+    --weight-text: #C77DFF;
+    --problem-text: #FF6961;
+    --track: #2C2C2E;
+    --seg-track: #2C2C2E;
+    --seg-on: #636366;
+    --seg-on-text: #FFFFFF;
+    --seg-shadow: none;
+    --grabber: #48484A;
+    --pressed: rgba(255, 255, 255, 0.08);
+    --scrim: rgba(0, 0, 0, 0.55);
+    --spinner-track: rgba(255, 255, 255, 0.18);
+    --tabbar-bg: rgba(44, 44, 46, 0.82);
+    --tabbar-border: rgba(255, 255, 255, 0.08);
+    --tabbar-shadow: none;
+    --header-glass: rgba(0, 0, 0, 0.72);
+    --header-line: rgba(255, 255, 255, 0.10);
+    --toast-shadow: none;
+    --mic-live: #FF6961;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #000000;
+  --page-0: rgba(0, 0, 0, 0);
+  --card: #1C1C1E;
+  --inset: #2C2C2E;
+  --fill: #2C2C2E;
+  --fill-2: #2C2C2E;
+  --pick-on: rgba(124, 196, 174, 0.24);
+  --sep: #38383A;
+  --sep-inset: #3A3A3C;
+  --text: #FFFFFF;
+  --text2: #98989F;
+  --chevron: #6C6C70;
+  --tab-inactive: #AEAEB2;
+  --initial: #3A3A3C;
+  --primary: #7CC4AE;
+  --on-primary: #0B2620;
+  --accent: #7CC4AE;
+  --activity: #FF9F0A;
+  --partner: #FFC56B;
+  --protein: #FF6B8E;
+  --habits: #F5A3B8;
+  --sleep: #8E8CFF;
+  --weight: #C77DFF;
+  --problem: #FF6961;
+  --activity-text: #FF9F0A;
+  --activity-text-page: #FF9F0A;
+  --protein-text: #FF6B8E;
+  --habits-text: #F5A3B8;
+  --sleep-text: #8E8CFF;
+  --weight-text: #C77DFF;
+  --problem-text: #FF6961;
+  --track: #2C2C2E;
+  --seg-track: #2C2C2E;
+  --seg-on: #636366;
+  --seg-on-text: #FFFFFF;
+  --seg-shadow: none;
+  --grabber: #48484A;
+  --pressed: rgba(255, 255, 255, 0.08);
+  --scrim: rgba(0, 0, 0, 0.55);
+  --spinner-track: rgba(255, 255, 255, 0.18);
+  --tabbar-bg: rgba(44, 44, 46, 0.82);
+  --tabbar-border: rgba(255, 255, 255, 0.08);
+  --tabbar-shadow: none;
+  --header-glass: rgba(0, 0, 0, 0.72);
+  --header-line: rgba(255, 255, 255, 0.10);
+  --toast-shadow: none;
+  --mic-live: #FF6961;
+}
